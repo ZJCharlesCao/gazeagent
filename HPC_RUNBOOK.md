@@ -70,7 +70,7 @@ python -m smvqa_gaze hpc-fetch-models          # Qwen3-VL-8B、Contriever、Mini
 python -m smvqa_gaze verify-manifest --transfer-dir ${SCRATCH:-$HOME}/smvqa_gaze_data/transfer_ready_v2
 ```
 
-`verify-manifest` 应输出 `Manifest verified`。`env/requirements_hpc.lock` 是本地验证通过的完整版本清单，安装出问题时用 `pip install -r env/requirements_hpc.lock` 复现。
+`hpc-fetch-models` 默认关闭 hf_xet 并逐个文件下载：登录节点通常限制单用户内存，并行下载器会报 `memory allocation ... failed` 后中止。中断后重跑同一条命令会跳过已完成的文件；内存充足的节点可加 `--fast`。`verify-manifest` 应输出 `Manifest verified`。`env/requirements_hpc.lock` 是本地验证通过的完整版本清单，安装出问题时用 `pip install -r env/requirements_hpc.lock` 复现。
 
 **2.4 SLURM 参数**
 

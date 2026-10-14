@@ -37,14 +37,24 @@ def _print(value: Any) -> None:
 
 
 def fetch_models(args: argparse.Namespace) -> None:
-    """Download every model on a node with internet (compute nodes may lack it)."""
+    """Download every model on a node with internet (compute nodes may lack it).
+
+    Login nodes often cap per-user memory; the default parallel hf_xet
+    downloader then aborts ("memory allocation ... failed"). Unless --fast is
+    given, downloads use plain HTTP, one file at a time. Re-running resumes:
+    completed files are skipped.
+    """
+    if not args.fast:
+        os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
+        os.environ.setdefault("HF_XET_HIGH_PERFORMANCE", "0")
+        os.environ.setdefault("HF_XET_NUM_CONCURRENT_RANGE_GETS", "2")
     from huggingface_hub import snapshot_download
 
     from .config import CLIP_ID, COVERAGE_ENCODER_ID, DETECTOR_ID, MODEL_ID, RETRIEVER_ID
 
     for model in (MODEL_ID, RETRIEVER_ID, COVERAGE_ENCODER_ID, CLIP_ID, DETECTOR_ID):
         print(f"downloading {model}", flush=True)
-        snapshot_download(model)
+        snapshot_download(model, max_workers=8 if args.fast else 1)
     import easyocr
 
     easyocr.Reader(["en"], gpu=False, verbose=False)
@@ -314,6 +324,11 @@ def register(subparsers: argparse._SubParsersAction) -> None:
         return parser
 
     parser = subparsers.add_parser("hpc-fetch-models", help="download all models (login node)")
+    parser.add_argument(
+        "--fast",
+        action="store_true",
+        help="parallel hf_xet download (needs more memory than login nodes usually allow)",
+    )
     parser.set_defaults(func=fetch_models)
 
     parser = common(subparsers.add_parser("hpc-prepare", help="verify transfer, cache frames, gaze checks"))
