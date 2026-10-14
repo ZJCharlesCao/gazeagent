@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Shared settings for the HPC job scripts. Edit the three paths below once.
+# Shared settings for the HPC job scripts. Defaults: code in this repository,
+# data and outputs under $SCRATCH/smvqa_gaze_data (override by exporting the
+# variables before sbatch, or edit the defaults below once).
 set -euo pipefail
 
 : "${SMVQA_REPO:=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}"
-: "${SMVQA_TRANSFER:=${SCRATCH:-$HOME}/smvqa_gaze/transfer_ready}"   # unpacked package
-: "${SMVQA_WORK:=${SCRATCH:-$HOME}/smvqa_gaze/work}"                 # caches, memory, preds, results
+: "${SMVQA_TRANSFER:=${SCRATCH:-$HOME}/smvqa_gaze_data/transfer_ready_v2}"  # uploaded data package
+: "${SMVQA_WORK:=${SCRATCH:-$HOME}/smvqa_gaze_data/work}"                     # caches, memory, preds, results
 : "${SMVQA_ENV:=smvqa-gaze-hpc}"
 : "${HF_HOME:=${SCRATCH:-$HOME}/.cache/huggingface}"
 export SMVQA_REPO SMVQA_TRANSFER SMVQA_WORK HF_HOME

@@ -7,26 +7,53 @@
 - GPU：1 张 80 GB（A100/H100）。`nvidia-smi` 的驱动需支持 CUDA 13（vLLM 0.31.0 的默认 wheel 基于 CUDA 13.0，驱动 ≥ 580）。驱动较旧时，按 vLLM 官方安装文档换成与集群 CUDA 匹配的 wheel，并在 `env/ENV_REPORT.md` 记录实际版本。
 - 磁盘：传输包约 42 GB，工作目录约 15 GB（1 fps 帧缓存约 10 GB + 记忆、预测、特征），模型缓存约 20 GB。
 
-## 1. 登录节点（有网络）
+## 1. 目录布局
+
+代码和数据分开放。代码目录是 git 仓库，不要把数据放进去。
+
+| 内容 | 位置（默认） | 说明 |
+|---|---|---|
+| 代码 | `~/gazeagent` | `git clone`；以后改代码只需 `git pull`（环境是 editable 安装，不用重装） |
+| 数据包 | `$SCRATCH/smvqa_gaze_data/transfer_ready_v2` | 从开发机 rsync 上传一次，只读 |
+| 运行产物 | `$SCRATCH/smvqa_gaze_data/work` | 帧缓存、特征、记忆、预测、结果、日志 |
+| 模型缓存 | `$SCRATCH/.cache/huggingface` | `HF_HOME` |
+
+集群没有 `$SCRATCH` 时，默认落到 `$HOME`；也可以在提交作业前导出 `SMVQA_TRANSFER`、`SMVQA_WORK`、`HF_HOME` 改到别处（见 `scripts/hpc_common.sh`）。
+
+## 2. 一次性准备
+
+**2.1 登录节点：拉代码**
 
 ```bash
-git clone https://github.com/ZJCharlesCao/gazeagent.git smvqa_gaze && cd smvqa_gaze
-bash scripts/deploy_hpc.sh --no-serve          # 按 env/environment_hpc.yml 建 smvqa-gaze-hpc 环境
-conda activate smvqa-gaze-hpc
-export HF_HOME=$SCRATCH/.cache/huggingface    # 与 scripts/hpc_common.sh 保持一致
-python -m smvqa_gaze hpc-fetch-models          # Qwen3-VL-8B、Contriever、MiniLM、CLIP、GroundingDINO、EasyOCR
-
-mkdir -p $SCRATCH/smvqa_gaze && tar -xf transfer_ready.tar -C $SCRATCH/smvqa_gaze
-python -m smvqa_gaze verify-manifest --transfer-dir $SCRATCH/smvqa_gaze/transfer_ready
+cd ~ && git clone https://github.com/ZJCharlesCao/gazeagent.git && cd gazeagent
 ```
 
-`env/requirements_hpc.lock` 是本地验证通过的完整版本清单，安装出问题时用 `pip install -r env/requirements_hpc.lock` 复现。
+**2.2 开发机：上传数据（约 41.6 GB，中断后重跑同一条命令会续传）**
 
-## 2. 配置一次
+```bash
+rsync -aH --partial --progress /mnt/D/smvqa_gaze_data/transfer_ready_v2/ \
+    <用户名>@<HPC 登录节点>:<SCRATCH 路径>/smvqa_gaze_data/transfer_ready_v2/
+```
 
-编辑 `scripts/hpc_common.sh` 开头的三个路径（或导出同名环境变量）：`SMVQA_TRANSFER`（解包目录）、`SMVQA_WORK`（工作目录）、`HF_HOME`。按集群要求给三个 `*.sbatch` 加上 `#SBATCH --partition/--account`。计算节点默认离线读取模型缓存（`HF_HUB_OFFLINE=1`）。
+**2.3 登录节点：建环境、下载模型、校验数据**
 
-## 3. 三个作业（按顺序提交）
+```bash
+cd ~/gazeagent
+module load anaconda 2>/dev/null || true       # 按集群实际的 conda 模块名；已有 conda 可跳过
+bash scripts/deploy_hpc.sh --no-serve          # 按 env/environment_hpc.yml 建 smvqa-gaze-hpc 环境（约 10 GB）
+conda activate smvqa-gaze-hpc
+export HF_HOME=${SCRATCH:-$HOME}/.cache/huggingface
+python -m smvqa_gaze hpc-fetch-models          # Qwen3-VL-8B、Contriever、MiniLM、CLIP、GroundingDINO、EasyOCR（约 20 GB）
+python -m smvqa_gaze verify-manifest --transfer-dir ${SCRATCH:-$HOME}/smvqa_gaze_data/transfer_ready_v2
+```
+
+`verify-manifest` 应输出 `Manifest verified`。`env/requirements_hpc.lock` 是本地验证通过的完整版本清单，安装出问题时用 `pip install -r env/requirements_hpc.lock` 复现。
+
+**2.4 SLURM 参数**
+
+按集群要求给 `scripts/` 下三个 `*.sbatch` 加上 `#SBATCH --partition=...`、`#SBATCH --account=...`，必要时把 `--gres=gpu:1` 写成具体型号（如 `gpu:a100:1`）。这类集群专属的改动建议只留在 HPC 本地，不提交回仓库。计算节点默认离线读取模型缓存（`HF_HUB_OFFLINE=1`）。
+
+## 3. 三个作业（按顺序提交，都在仓库根目录 `~/gazeagent` 下执行 `sbatch`）
 
 | 步骤 | 命令 | 内容 | 预计墙钟 | 成功标志 |
 |---|---|---|---|---|

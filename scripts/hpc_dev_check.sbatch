@@ -7,7 +7,9 @@
 # Step 1 on HPC: verify data, prepare caches, audit tokens and run every
 # condition on a few dev questions through both pipelines. Must finish with
 # "DEV CHECK PASSED" before submitting the benchmark job.
-source "$(dirname -- "${BASH_SOURCE[0]}")/hpc_common.sh"
+# SLURM runs a copy of this file from its spool directory, so locate the
+# repository from the submission directory: submit from the repo root.
+source "${SMVQA_REPO:-${SLURM_SUBMIT_DIR:-$(pwd)}}/scripts/hpc_common.sh"
 account_job h0-dev-check
 
 smvqa hpc-prepare --workers "${SLURM_CPUS_PER_TASK:-8}"

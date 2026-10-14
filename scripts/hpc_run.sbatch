@@ -7,7 +7,9 @@
 # Step 3 (H3 + H4): run the confirmed COMPUTE_PLAN. Safe to resubmit after a
 # time-limit kill: finished tasks are skipped and predictions resume per question.
 # The group runner stops launching at 22 GPU h and stops everything at 23.5 h.
-source "$(dirname -- "${BASH_SOURCE[0]}")/hpc_common.sh"
+# SLURM runs a copy of this file from its spool directory, so locate the
+# repository from the submission directory: submit from the repo root.
+source "${SMVQA_REPO:-${SLURM_SUBMIT_DIR:-$(pwd)}}/scripts/hpc_common.sh"
 account_job h3-run
 PLAN="$SMVQA_WORK/results/compute_plan.json"
 SERVER=$(python -c "import json;s=json.load(open('$PLAN'))['server'];print(f\"VLLM_MAX_NUM_SEQS={s['max_num_seqs']} VLLM_MAX_NUM_BATCHED_TOKENS={s['max_num_batched_tokens']}\")")
