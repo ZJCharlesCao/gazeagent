@@ -22,18 +22,41 @@
 
 ## 2. 一次性准备
 
-**2.1 登录节点：拉代码**
+**2.1 让 HPC 能 SSH 到开发机（一次性）**
+
+开发机只允许密钥登录，所以要把 HPC 的公钥加到开发机的 `~/.ssh/authorized_keys`。下面的 `<开发机地址>`、`<开发机用户>`、`<开发机数据路径>` 换成实际值（不要写进仓库）。
 
 ```bash
-cd ~ && git clone https://github.com/ZJCharlesCao/gazeagent.git && cd gazeagent
+# HPC 登录节点
+ssh-keygen -t ed25519 -N "" -f ~/.ssh/devbox      # 已有可复用的密钥可跳过
+cat ~/.ssh/devbox.pub                            # 把这一行加到开发机的 ~/.ssh/authorized_keys
+cat >> ~/.ssh/config <<'CFG'
+Host devbox
+    HostName <开发机地址>
+    User <开发机用户>
+    IdentityFile ~/.ssh/devbox
+    IdentitiesOnly yes
+CFG
+chmod 600 ~/.ssh/config
+ssh devbox hostname                              # 能输出开发机的主机名即连通
 ```
 
-**2.2 开发机：上传数据（约 41.6 GB，中断后重跑同一条命令会续传）**
+如果 `ssh devbox` 超时，说明 HPC 到开发机的 22 端口被防火墙挡住了，就改回在开发机上用 rsync 向 HPC 推送（方向相反，命令相同）。
+
+**2.2 登录节点：拉代码和数据**
 
 ```bash
-rsync -aH --partial --progress /mnt/D/smvqa_gaze_data/transfer_ready_v2/ \
-    <用户名>@<HPC 登录节点>:<SCRATCH 路径>/smvqa_gaze_data/transfer_ready_v2/
+# 代码（二选一）
+cd ~ && git clone https://github.com/ZJCharlesCao/gazeagent.git   # 从 GitHub 拉
+# cd ~ && git clone devbox:<开发机上的仓库路径> gazeagent            # 或从开发机拉，不需要 GitHub 凭据
+
+# 数据（约 41.6 GB；中断后重跑同一条命令会续传）
+mkdir -p ${SCRATCH:-$HOME}/smvqa_gaze_data
+rsync -aH --partial --progress devbox:<开发机数据路径>/transfer_ready_v2/ \
+    ${SCRATCH:-$HOME}/smvqa_gaze_data/transfer_ready_v2/
 ```
+
+以后改了代码，在 HPC 上 `cd ~/gazeagent && git pull` 即可。数据只有变化时才需要重新 rsync，rsync 只会传有差异的文件。
 
 **2.3 登录节点：建环境、下载模型、校验数据**
 
