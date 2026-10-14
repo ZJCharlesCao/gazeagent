@@ -1,0 +1,26 @@
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.venv/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+.env
+*.log
+
+data/
+transfer/
+memory/
+preds/
+results/
+logs/
+
+# Large research data lives on the configured data volume, never in Git.
+*.vrs
+*.mp4
+*.parquet
+*.npz
+*.pt
+*.safetensors

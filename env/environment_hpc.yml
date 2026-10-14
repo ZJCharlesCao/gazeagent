@@ -1,0 +1,10 @@
+name: smvqa-gaze-hpc
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - ffmpeg
+  - pip:
+      # Paths in this list are resolved relative to this file (env/).
+      - -e ..[hpc,test]

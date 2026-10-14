@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smvqa-gaze"
+version = "0.1.0"
+description = "Reproducible gaze-aware SuperMemory-VQA experiment preparation"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+local = [
+    "huggingface_hub>=0.27",
+    "matplotlib>=3.8",
+    "opencv-python>=4.9",
+    "pandas>=2.2",
+    "projectaria-tools>=1.5",
+    "pyarrow>=15",
+    "av>=12",
+]
+local-gpu = [
+    "torch>=2.7",
+    "torchvision>=0.22",
+    "transformers>=4.57",
+    "accelerate>=1.2",
+    "qwen-vl-utils>=0.0.8",
+    "sentence-transformers>=3.3",
+    "scipy>=1.13",
+    "tensorboardX>=2.6",
+]
+test = [
+    "pytest>=8",
+]
+hpc = [
+    "vllm>=0.11.0",
+    "transformers>=4.57.0",
+    "qwen-vl-utils",
+    "openai>=1.60",
+    "pandas>=2.2",
+    "pyarrow>=15",
+    "pillow>=10",
+    "opencv-python-headless>=4.9",
+    "av>=12",
+    "faiss-cpu>=1.8",
+    "sentence-transformers>=3.3",
+    "easyocr>=1.7",
+    "matplotlib>=3.8",
+    "scipy>=1.13",
+    "scikit-learn>=1.5",
+    "statsmodels>=0.14",
+    "pyyaml>=6",
+]
+
+[project.scripts]
+smvqa-gaze = "smvqa_gaze.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

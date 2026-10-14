@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#SBATCH --job-name=smvqa-dev
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=128G
+#SBATCH --time=03:00:00
+# Step 1 on HPC: verify data, prepare caches, audit tokens and run every
+# condition on a few dev questions through both pipelines. Must finish with
+# "DEV CHECK PASSED" before submitting the benchmark job.
+source "$(dirname -- "${BASH_SOURCE[0]}")/hpc_common.sh"
+account_job h0-dev-check
+
+smvqa hpc-prepare --workers "${SLURM_CPUS_PER_TASK:-8}"
+smvqa hpc-token-audit
+start_vllm
+SMOKE=(--split dev --limit 4 --smoke-window-s 300 --base-url "$SMVQA_BASE_URL")
+for pipeline in videorag egobutler; do
+  for condition in C0 C1 C3-T C3-V C3-M C4 C5 C6a0.5 C8shift-V C8cross-M C9-T; do
+    smvqa hpc-run --pipeline "$pipeline" --tier B1 --condition "$condition" "${SMOKE[@]}" --beta 0.5
+  done
+  smvqa hpc-run --pipeline "$pipeline" --tier B2 --condition C0 "${SMOKE[@]}"
+done
+smvqa hpc-evaluate
+echo "DEV CHECK PASSED"
