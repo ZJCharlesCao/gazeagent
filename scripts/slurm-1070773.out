@@ -1,0 +1,16 @@
+/var/spool/slurmd/job1070773/slurm_script: line 15: /work/11868/zccao2026/vista/gazeagent/gazeagent/scripts/scripts/hpc_common.sh: No such file or directory
+/var/spool/slurmd/job1070773/slurm_script: line 16: account_job: command not found
+/var/spool/slurmd/job1070773/slurm_script: line 19: smvqa: command not found
+/var/spool/slurmd/job1070773/slurm_script: line 20: smvqa: command not found
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/results/compute_plan.json'
+/var/spool/slurmd/job1070773/slurm_script: line 23: start_vllm: command not found
+/var/spool/slurmd/job1070773/slurm_script: line 26: smvqa: command not found
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/results/compute_plan.json'
+/var/spool/slurmd/job1070773/slurm_script: line 30: smvqa: command not found
+/var/spool/slurmd/job1070773/slurm_script: line 31: smvqa: command not found
+/var/spool/slurmd/job1070773/slurm_script: line 32: smvqa: command not found
+/var/spool/slurmd/job1070773/slurm_script: line 33: smvqa: command not found

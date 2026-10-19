@@ -206,7 +206,10 @@ async def answer_all(
         record["has_vague"] = any(choice["type"] == "vague" for choice in question["choices"])
         await store.append(record)
 
-    stats = await run_tasks(pending, work, f"{ctx.pipeline}/{ctx.tier}/{ctx.condition.name} answer")
+    stats = await run_tasks(
+        pending, work, f"{ctx.pipeline}/{ctx.tier}/{ctx.condition.name} answer",
+        max_in_flight=2 * ctx.config.request_concurrency,
+    )
     return {**stats, "completed": len(store.records)}
 
 

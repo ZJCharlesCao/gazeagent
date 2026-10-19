@@ -6,6 +6,7 @@ import argparse
 import dataclasses
 import json
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -229,7 +230,7 @@ def select_variant(args: argparse.Namespace) -> None:
 
 def group(args: argparse.Namespace) -> None:
     from .plan import load_plan_tasks
-    from .runner import run_group
+    from .runner import ABORT_EXIT_CODES, Guards, run_group
 
     paths = _paths(args)
     tasks = load_plan_tasks(Path(args.plan))
@@ -245,8 +246,17 @@ def group(args: argparse.Namespace) -> None:
         base_url=_config(args).base_url,
         extra_args=(["--limit", str(args.limit)] if args.limit else [])
         + (["--smoke-window-s", str(args.smoke_window_s)] if args.smoke_window_s else []),
+        guards=Guards(
+            min_free_ram_gb=args.min_free_ram_gb,
+            min_free_gpu_gb=args.min_free_gpu_gb,
+            max_consecutive_failures=args.max_consecutive_failures,
+        ),
     )
     _print(summary)
+    if summary["aborted"]:
+        # Non-zero exit (3 server down, 4 failures, 5 memory) ends the job script.
+        print(f"hpc-group aborted: {summary['aborted']}", file=sys.stderr)
+        sys.exit(ABORT_EXIT_CODES[summary["aborted"]])
 
 
 def evaluate(args: argparse.Namespace) -> None:
@@ -277,6 +287,13 @@ def plan(args: argparse.Namespace) -> None:
     from .plan import make_plan, write_plan
 
     paths = _paths(args)
+    if args.no_bench:
+        from .plan import default_plan, write_default_plan
+
+        result = default_plan(paths, include_p3=args.include_p3)
+        path = write_default_plan(paths, result)
+        _print({"plan": str(path), "tasks": len(result["tasks"]), "benchmarked": False})
+        return
     bench_summary = json.loads((paths.results / "bench/bench_summary.json").read_text())
     result = make_plan(paths, _config(args), bench_summary, include_p3=args.include_p3)
     path = write_plan(paths, result, bench_summary)
@@ -362,6 +379,9 @@ def register(subparsers: argparse._SubParsersAction) -> None:
     parser.add_argument("--plan", required=True)
     parser.add_argument("--priorities", help="e.g. P0 or P0,P1")
     parser.add_argument("--max-parallel", type=int, default=4)
+    parser.add_argument("--min-free-ram-gb", type=float, default=24.0, help="launch only above this free CPU RAM")
+    parser.add_argument("--min-free-gpu-gb", type=float, default=10.0, help="launch only above this free GPU memory")
+    parser.add_argument("--max-consecutive-failures", type=int, default=4, help="abort after this many failed tasks in a row")
     parser.add_argument("--split", default="test")
     parser.add_argument("--limit", type=int, help="dev rehearsal: questions per task")
     parser.add_argument("--smoke-window-s", type=float, help="dev rehearsal: memory window")
@@ -380,6 +400,7 @@ def register(subparsers: argparse._SubParsersAction) -> None:
 
     parser = common(subparsers.add_parser("hpc-plan", help="H2 compute plan from the benchmark"))
     parser.add_argument("--include-p3", action="store_true")
+    parser.add_argument("--no-bench", action="store_true", help="plan all tasks without H2 measurements or budget cuts")
     parser.set_defaults(func=plan)
 
     parser = common(subparsers.add_parser("hpc-wait-server", help="block until vLLM answers"))

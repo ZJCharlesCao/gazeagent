@@ -123,26 +123,46 @@ class LLMClient:
         raise RuntimeError("unreachable")
 
 
+class TooManyFailures(RuntimeError):
+    """Raised by run_tasks when items keep failing; see its docstring."""
+
+
 async def run_tasks(
     items: Iterable[Any],
     worker: Callable[[Any], Awaitable[None]],
     progress_label: str,
     report_every: int = 25,
+    max_in_flight: int = 16,
+    max_consecutive_failures: int = 20,
 ) -> dict[str, int]:
-    """Run per-item coroutines; failures are logged and counted, not fatal."""
+    """Run per-item coroutines; failures are logged and counted, not fatal.
+
+    At most ``max_in_flight`` items run at once. Workers render frames or run
+    GPU retrieval before they wait for an LLM slot, so starting every item at
+    once held all of them in host and GPU memory together.
+
+    After ``max_consecutive_failures`` failed items in a row (for example the
+    vLLM server is gone) no new item starts and ``TooManyFailures`` is raised,
+    so the run ends instead of failing every remaining item one by one."""
     items = list(items)
     done = failed = 0
     started = time.perf_counter()
+    queue = iter(items)
+    in_a_row = 0
+    last_error = ""
 
     async def guarded(item: Any) -> None:
-        nonlocal done, failed
+        nonlocal done, failed, in_a_row, last_error
         try:
             await worker(item)
         except Exception as exc:  # noqa: BLE001
             failed += 1
+            in_a_row += 1
+            last_error = f"{type(exc).__name__}: {exc}"
             print(f"[{progress_label}] FAILED {_item_label(item)}: {type(exc).__name__}: {exc}", flush=True)
         else:
             done += 1
+            in_a_row = 0
         finished = done + failed
         if finished % report_every == 0 or finished == len(items):
             rate = finished / max(time.perf_counter() - started, 1e-6)
@@ -151,7 +171,18 @@ async def run_tasks(
                 flush=True,
             )
 
-    await asyncio.gather(*(guarded(item) for item in items))
+    async def pool_worker() -> None:
+        for item in queue:
+            if in_a_row >= max_consecutive_failures:
+                return
+            await guarded(item)
+
+    await asyncio.gather(*(pool_worker() for _ in range(max(1, min(max_in_flight, len(items))))))
+    if in_a_row >= max_consecutive_failures:
+        raise TooManyFailures(
+            f"[{progress_label}] stopped after {in_a_row} failures in a row "
+            f"({done} done, {failed} failed of {len(items)}); last error: {last_error}"
+        )
     return {"done": done, "failed": failed, "total": len(items)}
 
 

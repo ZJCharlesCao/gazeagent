@@ -21,6 +21,18 @@ from .metrics import compute_metrics
 
 PLANNED_HOURS = 22.0
 HARD_LIMIT_HOURS = 23.5
+# Consecutive failed health checks (one per poll) before the server counts as down.
+SERVER_DOWN_CHECKS = 3
+
+
+def server_alive(base_url: str, timeout_s: float = 10.0) -> bool:
+    import urllib.request
+
+    try:
+        with urllib.request.urlopen(base_url.rstrip("/") + "/models", timeout=timeout_s) as response:
+            return response.status == 200
+    except Exception:  # noqa: BLE001 - any failure means not serving
+        return False
 
 
 # --------------------------------------------------------------------- budget
@@ -198,6 +210,59 @@ def sanity_ok(paths: Paths, name: str, suffix: str = "") -> tuple[bool, str]:
     return True, "ok"
 
 
+def cpu_free_gb() -> float:
+    """Free CPU RAM. On GH200 nodes the GPU's HBM is a second NUMA node that
+    /proc/meminfo counts as system memory, so read NUMA node 0 when present."""
+    node0 = Path("/sys/devices/system/node/node0/meminfo")
+    fields: dict[str, float] = {}
+    if node0.is_file() and Path("/sys/devices/system/node/node1").is_dir():
+        for line in node0.read_text().splitlines():
+            parts = line.split()  # "Node 0 MemFree: 123 kB"
+            fields[parts[2].rstrip(":")] = float(parts[3])
+        return (fields.get("MemFree", 0) + fields.get("Inactive(file)", 0)) / 1048576
+    for line in Path("/proc/meminfo").read_text().splitlines():
+        name, value = line.split(":", 1)
+        fields[name] = float(value.split()[0])
+    return fields.get("MemAvailable", 0) / 1048576
+
+
+def gpu_free_gb() -> float | None:
+    """Free memory of the least free visible GPU, or None without nvidia-smi."""
+    try:
+        output = subprocess.run(
+            ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=30, check=True,
+        ).stdout
+        return min(float(line) for line in output.split() if line.strip()) / 1024
+    except Exception:  # noqa: BLE001 - no GPU information
+        return None
+
+
+@dataclass
+class Guards:
+    """Resource limits and stop conditions of the group runner.
+
+    A task is launched only while free CPU RAM and GPU memory stay above the
+    ``min_free`` values, and at most one per poll so each task's model loads
+    show up before the next one starts. Below the ``critical`` values the most
+    recently started task is stopped and queued again; after
+    ``max_memory_kills`` such stops the group aborts. The group also aborts
+    after ``max_consecutive_failures`` failed tasks in a row and when the vLLM
+    server misses ``server_down_checks`` health checks in a row."""
+
+    min_free_ram_gb: float = 24.0
+    min_free_gpu_gb: float = 10.0
+    critical_ram_gb: float = 6.0
+    critical_gpu_gb: float = 1.0
+    max_memory_kills: int = 3
+    max_consecutive_failures: int = 4
+    server_down_checks: int = SERVER_DOWN_CHECKS
+
+
+# Exit codes of `hpc-group` for each abort reason (0 = finished normally).
+ABORT_EXIT_CODES = {"server_down": 3, "too_many_failures": 4, "memory_pressure": 5}
+
+
 def run_group(
     paths: Paths,
     tasks: list[Task],
@@ -209,11 +274,17 @@ def run_group(
     hard_limit_hours: float = HARD_LIMIT_HOURS,
     base_url: str | None = None,
     extra_args: list[str] | None = None,
+    guards: Guards | None = None,
 ) -> dict[str, Any]:
     """Run tasks as subprocesses (each one vLLM client), respecting
     dependencies, B1-before-B2 sanity checks and the GPU-hour budget: after the
     planned hours no new task starts; at the hard limit everything stops.
-    Predictions are appended per question, so stopped work is not lost."""
+    Predictions are appended per question, so stopped work is not lost.
+
+    The run aborts (summary ``aborted`` set, running tasks stopped) when the
+    vLLM server stops answering, when tasks keep failing, or when memory stays
+    critical; see ``Guards``."""
+    guards = guards or Guards()
     limit = None
     if extra_args and "--limit" in extra_args:
         limit = int(extra_args[extra_args.index("--limit") + 1])
@@ -252,24 +323,40 @@ def run_group(
                 return False
         return True
 
+    def stop(name: str, new_status: str) -> None:
+        process = running.pop(name)
+        process.send_signal(signal.SIGTERM)
+        try:
+            process.wait(timeout=60)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+        status[name] = new_status
+
+    def stop_running(new_status: str) -> None:
+        for name in list(running):
+            stop(name, new_status)
+
     stop_new = False
+    aborted: str | None = None
+    failed_checks = consecutive_failures = memory_kills = 0
+    waiting_for_memory = False
     while True:
         used = ledger.heartbeat()
         if used >= hard_limit_hours:
             log("hard_limit", used_h=used)
-            for name, process in running.items():
-                process.send_signal(signal.SIGTERM)
-                status[name] = "stopped_at_hard_limit"
-            for process in running.values():
-                try:
-                    process.wait(timeout=60)
-                except subprocess.TimeoutExpired:
-                    process.kill()
-            running.clear()
+            stop_running("stopped_at_hard_limit")
             break
         if used >= planned_hours and not stop_new:
             stop_new = True
             log("planned_budget_reached", used_h=used)
+        if base_url:
+            failed_checks = 0 if server_alive(base_url) else failed_checks + 1
+            if failed_checks >= guards.server_down_checks:
+                aborted = "server_down"
+                log("abort", reason=aborted, base_url=base_url, used_h=used, stopped=sorted(running))
+                stop_running("interrupted: server down")
+                break
         for name, process in list(running.items()):
             code = process.poll()
             if code is None:
@@ -280,30 +367,58 @@ def run_group(
                 task.done_marker(paths, suffix).parent.mkdir(parents=True, exist_ok=True)
                 task.done_marker(paths, suffix).write_text(time.strftime("%Y-%m-%d %H:%M:%S") + "\n")
                 status[name] = "done"
+                consecutive_failures = 0
             else:
                 status[name] = f"failed({code})"
+                consecutive_failures += 1
             log("finished", task=name, code=code, used_h=used)
-        launchable = [] if stop_new else [t for t in tasks if status[t.name] == "pending" and ready(t)]
-        for task in launchable[: max(0, max_parallel - len(running))]:
-            command = [
-                sys.executable, "-m", "smvqa_gaze", "hpc-run",
-                "--data", str(paths.data), "--work", str(paths.work),
-                "--pipeline", task.pipeline, "--tier", task.tier,
-                "--condition", task.condition, "--split", split,
-            ]
-            if config_path is not None:
-                command += ["--config", str(config_path)]
-            if base_url:
-                command += ["--base-url", base_url]
-            command += extra_args or []
-            log_path = log_dir / f"{task.name.replace('/', '_')}.log"
-            running[task.name] = subprocess.Popen(command, stdout=log_path.open("a"), stderr=subprocess.STDOUT)
-            status[task.name] = "running"
-            log("started", task=task.name, used_h=used)
-        if not running and not launchable:
+        if consecutive_failures >= guards.max_consecutive_failures:
+            aborted = "too_many_failures"
+            log("abort", reason=aborted, failures_in_a_row=consecutive_failures, stopped=sorted(running))
+            stop_running("interrupted: too many failures")
+            break
+        ram, gpu = cpu_free_gb(), gpu_free_gb()
+        if running and (ram < guards.critical_ram_gb or (gpu is not None and gpu < guards.critical_gpu_gb)):
+            newest = list(running)[-1]
+            memory_kills += 1
+            log("memory_pressure", free_ram_gb=round(ram, 1), free_gpu_gb=gpu and round(gpu, 1), requeued=newest)
+            stop(newest, "pending")
+            if memory_kills >= guards.max_memory_kills:
+                aborted = "memory_pressure"
+                log("abort", reason=aborted, memory_kills=memory_kills, stopped=sorted(running))
+                stop_running("interrupted: memory pressure")
+                break
+            time.sleep(poll_s)
+            continue
+        launchable = [] if stop_new or failed_checks else [t for t in tasks if status[t.name] == "pending" and ready(t)]
+        if launchable and len(running) < max_parallel:
+            memory_ok = ram >= guards.min_free_ram_gb and (gpu is None or gpu >= guards.min_free_gpu_gb)
+            if not memory_ok and running:
+                if not waiting_for_memory:
+                    log("waiting_for_memory", free_ram_gb=round(ram, 1), free_gpu_gb=gpu and round(gpu, 1), running=len(running))
+                waiting_for_memory = True
+            else:
+                waiting_for_memory = False
+                task = launchable[0]
+                command = [
+                    sys.executable, "-m", "smvqa_gaze", "hpc-run",
+                    "--data", str(paths.data), "--work", str(paths.work),
+                    "--pipeline", task.pipeline, "--tier", task.tier,
+                    "--condition", task.condition, "--split", split,
+                ]
+                if config_path is not None:
+                    command += ["--config", str(config_path)]
+                if base_url:
+                    command += ["--base-url", base_url]
+                command += extra_args or []
+                log_path = log_dir / f"{task.name.replace('/', '_')}.log"
+                running[task.name] = subprocess.Popen(command, stdout=log_path.open("a"), stderr=subprocess.STDOUT)
+                status[task.name] = "running"
+                log("started", task=task.name, used_h=used, free_ram_gb=round(ram, 1), free_gpu_gb=gpu and round(gpu, 1))
+        if not running and not launchable and not failed_checks:
             break
         time.sleep(poll_s)
     ledger.heartbeat()
-    summary = {"status": status, "used_hours": ledger.used()}
+    summary = {"status": status, "used_hours": ledger.used(), "aborted": aborted}
     (paths.logs / "group_status.json").write_text(json.dumps(summary, indent=2) + "\n")
     return summary

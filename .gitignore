@@ -24,3 +24,6 @@ logs/
 *.npz
 *.pt
 *.safetensors
+
+# Cluster-specific settings (see scripts/hpc_common.sh)
+scripts/hpc_site.sh

@@ -179,7 +179,10 @@ class EgoButler:
                         meta["fixation_label"] = label
             await self.unit_store.append(record)
 
-        stats = await run_tasks(pending, work, f"egobutler/{self.ctx.tier}/{self.condition.name} caption")
+        stats = await run_tasks(
+            pending, work, f"egobutler/{self.ctx.tier}/{self.condition.name} caption",
+            max_in_flight=2 * self.ctx.config.request_concurrency,
+        )
         write_run_manifest(
             self.ctx,
             "memory:egobutler:captions",
@@ -230,7 +233,10 @@ class EgoButler:
                 }
             )
 
-        stats_hour = await run_tasks(list(hours.items()), hour_work, f"egobutler/{self.ctx.tier}/{self.condition.name} hour")
+        stats_hour = await run_tasks(
+            list(hours.items()), hour_work, f"egobutler/{self.ctx.tier}/{self.condition.name} hour",
+            max_in_flight=2 * self.ctx.config.request_concurrency,
+        )
         days: dict[tuple[int, str], list[dict[str, Any]]] = defaultdict(list)
         for row in self.summary_store.values():
             if row["level"] == "hour":
@@ -260,7 +266,10 @@ class EgoButler:
                 }
             )
 
-        stats_day = await run_tasks(list(days.items()), day_work, f"egobutler/{self.ctx.tier}/{self.condition.name} day")
+        stats_day = await run_tasks(
+            list(days.items()), day_work, f"egobutler/{self.ctx.tier}/{self.condition.name} day",
+            max_in_flight=2 * self.ctx.config.request_concurrency,
+        )
         write_run_manifest(
             self.ctx,
             "memory:egobutler:summaries",

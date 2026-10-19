@@ -1,0 +1,748 @@
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 1310.05it/s]
+{
+  "sessions": 14,
+  "shift": [
+    {
+      "video_id": "Person_3_session_1_02232026_glasses_1284",
+      "same_label_fraction": {
+        "300.0": 0.0,
+        "420.0": 0.0
+      },
+      "shift_s": 300.0
+    },
+    {
+      "video_id": "Person_3_session_2_02232026_glasses_1203",
+      "same_label_fraction": {
+        "300.0": 0.015625,
+        "420.0": 0.0
+      },
+      "shift_s": 300.0
+    },
+    {
+      "video_id": "Person_3_session_3_03232026_glasses_1266",
+      "same_label_fraction": {
+        "300.0": 0.0,
+        "420.0": 0.003472222222222222
+      },
+      "shift_s": 300.0
+    }
+  ],
+  "labels": 4161
+}
+{
+  "plan": "/scratch/11868/zccao2026/gazeagent/outputs/results/COMPUTE_PLAN.md",
+  "tasks": 76,
+  "benchmarked": false
+}
+vLLM ready at http://127.0.0.1:8000/v1
+[group] started {'task': 'egobutler/B1/C0', 'used_h': 0.3167252144548628}
+[group] started {'task': 'videorag/B1/C0', 'used_h': 0.3167252144548628}
+[group] started {'task': 'egobutler/B1/C1', 'used_h': 0.3167252144548628}
+[group] started {'task': 'videorag/B1/C1', 'used_h': 0.3167252144548628}
+[group] finished {'task': 'egobutler/B1/C1', 'code': -9, 'used_h': 0.3167252144548628}
+[group] started {'task': 'egobutler/B1/C3-M', 'used_h': 0.3167252144548628}
+[group] finished {'task': 'videorag/B1/C1', 'code': 1, 'used_h': 0.5001120896471871}
+[group] started {'task': 'videorag/B1/C3-M', 'used_h': 0.5001120896471871}
+[group] finished {'task': 'egobutler/B1/C0', 'code': 1, 'used_h': 1.983838598926862}
+[group] started {'task': 'egobutler/B1/C3-T', 'used_h': 1.983838598926862}
+[group] finished {'task': 'egobutler/B1/C3-M', 'code': 1, 'used_h': 2.250560305714607}
+[group] started {'task': 'videorag/B1/C3-T', 'used_h': 2.250560305714607}
+[group] finished {'task': 'videorag/B1/C0', 'code': 1, 'used_h': 2.2672308882739807}
+[group] started {'task': 'egobutler/B1/C3-V', 'used_h': 2.2672308882739807}
+[group] finished {'task': 'videorag/B1/C3-M', 'code': 1, 'used_h': 2.317242370910115}
+[group] started {'task': 'videorag/B1/C3-V', 'used_h': 2.317242370910115}
+[group] finished {'task': 'videorag/B1/C3-T', 'code': 1, 'used_h': 3.9675679763820435}
+[group] started {'task': 'videorag/B1/C5', 'used_h': 3.9675679763820435}
+[group] finished {'task': 'videorag/B1/C3-V', 'code': 1, 'used_h': 4.017586395144463}
+[group] finished {'task': 'videorag/B1/C5', 'code': 1, 'used_h': 4.301004786822531}
+[group] finished {'task': 'egobutler/B1/C3-T', 'code': 1, 'used_h': 5.601341264711486}
+[group] finished {'task': 'egobutler/B1/C3-V', 'code': 1, 'used_h': 5.868121356765429}
+{
+  "status": {
+    "egobutler/B1/C0": "failed(1)",
+    "videorag/B1/C0": "failed(1)",
+    "egobutler/B2/C0": "pending",
+    "videorag/B2/C0": "pending",
+    "egobutler/B1/C1": "failed(-9)",
+    "videorag/B1/C1": "failed(1)",
+    "egobutler/B1/C3-M": "failed(1)",
+    "videorag/B1/C3-M": "failed(1)",
+    "egobutler/B1/C3-T": "failed(1)",
+    "videorag/B1/C3-T": "failed(1)",
+    "egobutler/B1/C3-V": "failed(1)",
+    "videorag/B1/C3-V": "failed(1)",
+    "egobutler/B1/C5": "pending",
+    "videorag/B1/C5": "failed(1)",
+    "egobutler/B2/C1": "pending",
+    "videorag/B2/C1": "pending",
+    "egobutler/B2/C3-M": "pending",
+    "videorag/B2/C3-M": "pending",
+    "egobutler/B2/C3-T": "pending",
+    "videorag/B2/C3-T": "pending",
+    "egobutler/B2/C3-V": "pending",
+    "videorag/B2/C3-V": "pending",
+    "egobutler/B2/C5": "pending",
+    "videorag/B2/C5": "pending"
+  },
+  "used_hours": 5.868121356765429
+}
+[group] started {'task': 'egobutler/B1/C8cross-M', 'used_h': 5.868121356765429}
+[group] started {'task': 'videorag/B1/C8cross-M', 'used_h': 5.868121356765429}
+[group] started {'task': 'egobutler/B1/C8cross-T', 'used_h': 5.868121356765429}
+[group] started {'task': 'videorag/B1/C8cross-T', 'used_h': 5.868121356765429}
+[group] finished {'task': 'videorag/B1/C8cross-M', 'code': 1, 'used_h': 7.585272053016556}
+[group] finished {'task': 'videorag/B1/C8cross-T', 'code': 1, 'used_h': 7.585272053016556}
+[group] started {'task': 'egobutler/B1/C8cross-V', 'used_h': 7.585272053016556}
+[group] started {'task': 'videorag/B1/C8cross-V', 'used_h': 7.585272053016556}
+[group] finished {'task': 'videorag/B1/C8cross-V', 'code': 1, 'used_h': 9.302336713075638}
+[group] started {'task': 'egobutler/B1/C8shift-M', 'used_h': 9.302336713075638}
+[group] finished {'task': 'egobutler/B1/C8cross-M', 'code': 1, 'used_h': 9.485701445804702}
+[group] finished {'task': 'egobutler/B1/C8cross-T', 'code': 1, 'used_h': 9.485701445804702}
+[group] started {'task': 'videorag/B1/C8shift-M', 'used_h': 9.485701445804702}
+[group] started {'task': 'egobutler/B1/C8shift-T', 'used_h': 9.485701445804702}
+[group] finished {'task': 'egobutler/B1/C8cross-V', 'code': 1, 'used_h': 11.202759833799469}
+[group] finished {'task': 'videorag/B1/C8shift-M', 'code': 1, 'used_h': 11.202759833799469}
+[group] started {'task': 'videorag/B1/C8shift-T', 'used_h': 11.202759833799469}
+[group] started {'task': 'egobutler/B1/C8shift-V', 'used_h': 11.202759833799469}
+[group] finished {'task': 'egobutler/B1/C8shift-M', 'code': 1, 'used_h': 12.91981650855806}
+[group] finished {'task': 'videorag/B1/C8shift-T', 'code': 1, 'used_h': 12.91981650855806}
+[group] started {'task': 'videorag/B1/C8shift-V', 'used_h': 12.91981650855806}
+[group] started {'task': 'egobutler/B1/C9-M', 'used_h': 12.91981650855806}
+[group] finished {'task': 'egobutler/B1/C8shift-T', 'code': 1, 'used_h': 13.103183188438415}
+[group] started {'task': 'videorag/B1/C9-M', 'used_h': 13.103183188438415}
+[group] finished {'task': 'videorag/B1/C8shift-V', 'code': 1, 'used_h': 14.636974249879518}
+[group] started {'task': 'egobutler/B1/C9-T', 'used_h': 14.636974249879518}
+[group] finished {'task': 'egobutler/B1/C8shift-V', 'code': 1, 'used_h': 14.820342427757051}
+[group] finished {'task': 'videorag/B1/C9-M', 'code': 1, 'used_h': 14.820342427757051}
+[group] started {'task': 'videorag/B1/C9-T', 'used_h': 14.820342427757051}
+[group] started {'task': 'egobutler/B1/C9-V', 'used_h': 14.820342427757051}
+[group] finished {'task': 'egobutler/B1/C9-M', 'code': 1, 'used_h': 16.537333607342507}
+[group] finished {'task': 'videorag/B1/C9-T', 'code': 1, 'used_h': 16.537333607342507}
+[group] started {'task': 'videorag/B1/C9-V', 'used_h': 16.537333607342507}
+[group] started {'task': 'egobutler/B1/C4', 'used_h': 16.537333607342507}
+[group] finished {'task': 'egobutler/B1/C4', 'code': -9, 'used_h': 16.554002894030678}
+[group] started {'task': 'videorag/B1/C4', 'used_h': 16.554002894030678}
+[group] finished {'task': 'egobutler/B1/C9-T', 'code': 1, 'used_h': 18.254311346742842}
+[group] finished {'task': 'videorag/B1/C9-V', 'code': 1, 'used_h': 18.254311346742842}
+[group] started {'task': 'egobutler/B1/C6a0', 'used_h': 18.254311346742842}
+[group] started {'task': 'videorag/B1/C6a0', 'used_h': 18.254311346742842}
+[group] finished {'task': 'videorag/B1/C4', 'code': 1, 'used_h': 18.27098043786155}
+[group] started {'task': 'egobutler/B1/C6a0.5', 'used_h': 18.27098043786155}
+[group] finished {'task': 'videorag/B1/C6a0', 'code': 1, 'used_h': 18.33765928453869}
+[group] started {'task': 'videorag/B1/C6a0.5', 'used_h': 18.33765928453869}
+[group] finished {'task': 'videorag/B1/C6a0.5', 'code': 1, 'used_h': 18.370998869604534}
+[group] started {'task': 'egobutler/B1/C6a1', 'used_h': 18.370998869604534}
+[group] finished {'task': 'egobutler/B1/C9-V', 'code': 1, 'used_h': 18.437676118943426}
+[group] started {'task': 'videorag/B1/C6a1', 'used_h': 18.437676118943426}
+[group] finished {'task': 'videorag/B1/C6a1', 'code': 1, 'used_h': 18.45434537364377}
+[group] finished {'task': 'egobutler/B1/C6a1', 'code': 1, 'used_h': 18.48768482486407}
+[group] finished {'task': 'egobutler/B1/C6a0.5', 'code': 1, 'used_h': 20.238009135524432}
+[group] finished {'task': 'egobutler/B1/C6a0', 'code': 1, 'used_h': 21.2882279586792}
+{
+  "status": {
+    "egobutler/B1/C8cross-M": "failed(1)",
+    "videorag/B1/C8cross-M": "failed(1)",
+    "egobutler/B1/C8cross-T": "failed(1)",
+    "videorag/B1/C8cross-T": "failed(1)",
+    "egobutler/B1/C8cross-V": "failed(1)",
+    "videorag/B1/C8cross-V": "failed(1)",
+    "egobutler/B1/C8shift-M": "failed(1)",
+    "videorag/B1/C8shift-M": "failed(1)",
+    "egobutler/B1/C8shift-T": "failed(1)",
+    "videorag/B1/C8shift-T": "failed(1)",
+    "egobutler/B1/C8shift-V": "failed(1)",
+    "videorag/B1/C8shift-V": "failed(1)",
+    "egobutler/B1/C9-M": "failed(1)",
+    "videorag/B1/C9-M": "failed(1)",
+    "egobutler/B1/C9-T": "failed(1)",
+    "videorag/B1/C9-T": "failed(1)",
+    "egobutler/B1/C9-V": "failed(1)",
+    "videorag/B1/C9-V": "failed(1)",
+    "egobutler/B2/C8cross-M": "pending",
+    "videorag/B2/C8cross-M": "pending",
+    "egobutler/B2/C8cross-T": "pending",
+    "videorag/B2/C8cross-T": "pending",
+    "egobutler/B2/C8cross-V": "pending",
+    "videorag/B2/C8cross-V": "pending",
+    "egobutler/B2/C8shift-M": "pending",
+    "videorag/B2/C8shift-M": "pending",
+    "egobutler/B2/C8shift-T": "pending",
+    "videorag/B2/C8shift-T": "pending",
+    "egobutler/B2/C8shift-V": "pending",
+    "videorag/B2/C8shift-V": "pending",
+    "egobutler/B2/C9-M": "pending",
+    "videorag/B2/C9-M": "pending",
+    "egobutler/B2/C9-T": "pending",
+    "videorag/B2/C9-T": "pending",
+    "egobutler/B2/C9-V": "pending",
+    "videorag/B2/C9-V": "pending",
+    "egobutler/B1/C4": "failed(-9)",
+    "videorag/B1/C4": "failed(1)",
+    "egobutler/B1/C6a0": "failed(1)",
+    "videorag/B1/C6a0": "failed(1)",
+    "egobutler/B1/C6a0.5": "failed(1)",
+    "videorag/B1/C6a0.5": "failed(1)",
+    "egobutler/B1/C6a1": "failed(1)",
+    "videorag/B1/C6a1": "failed(1)",
+    "egobutler/B2/C4": "pending",
+    "videorag/B2/C4": "pending",
+    "egobutler/B2/C6a0": "pending",
+    "videorag/B2/C6a0": "pending",
+    "egobutler/B2/C6a0.5": "pending",
+    "videorag/B2/C6a0.5": "pending",
+    "egobutler/B2/C6a1": "pending",
+    "videorag/B2/C6a1": "pending"
+  },
+  "used_hours": 21.2882279586792
+}
+{
+  "videorag/B1/C1": {
+    "n": 71,
+    "ans_f1": 0.7012987012987013,
+    "ans_f1_answerable": 0.7012987012987013,
+    "ans_f1_unanswerable": 0.6461538461538461,
+    "ans_f1_macro": 0.6737262737262737,
+    "qa_acc": 0.4647887323943662,
+    "qa_mrr": 0.6666666666666666,
+    "false_abstention_rate": 0.4375,
+    "vague_rate": 0.2127659574468085,
+    "recall_at_k": 0.5254237288135594,
+    "target_coverage": 0.29411764705882354,
+    "parse_failure_rate": 0.0,
+    "parse_partial_rate": 0.0
+  }
+}
+{
+  "split": "test",
+  "n_runs": 1,
+  "runs": [
+    [
+      "videorag",
+      "B1",
+      "C1"
+    ]
+  ],
+  "missing_runs": [
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C0",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C0",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C0",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C0",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C1",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C1",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C1",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C3-T",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C3-T",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C3-T",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C3-T",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C3-V",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C3-V",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C3-V",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C3-V",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C3-M",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C3-M",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C3-M",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C3-M",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C5",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C5",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C5",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C5",
+      "priority": "P0"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C8shift-T",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C8shift-T",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C8shift-T",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C8shift-T",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C8shift-V",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C8shift-V",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C8shift-V",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C8shift-V",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C8shift-M",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C8shift-M",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C8shift-M",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C8shift-M",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C8cross-T",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C8cross-T",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C8cross-T",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C8cross-T",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C8cross-V",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C8cross-V",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C8cross-V",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C8cross-V",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C8cross-M",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C8cross-M",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C8cross-M",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C8cross-M",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C9-T",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C9-T",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C9-T",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C9-T",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C9-V",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C9-V",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C9-V",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C9-V",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C9-M",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C9-M",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C9-M",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C9-M",
+      "priority": "P1"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C4",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C4",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C4",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C4",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C6a0",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C6a0",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C6a0",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C6a0",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C6a0.5",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C6a0.5",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C6a0.5",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C6a0.5",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C6a1",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "videorag",
+      "tier": "B2",
+      "condition": "C6a1",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B1",
+      "condition": "C6a1",
+      "priority": "P2"
+    },
+    {
+      "pipeline": "egobutler",
+      "tier": "B2",
+      "condition": "C6a1",
+      "priority": "P2"
+    }
+  ],
+  "incomplete_runs": [
+    {
+      "pipeline": "videorag",
+      "tier": "B1",
+      "condition": "C1",
+      "n": 71,
+      "n_expected": 479
+    }
+  ],
+  "n_rows": 71,
+  "n_boot": 1000,
+  "tables": {
+    "T0_fe_by_category": {
+      "csv": "/scratch/11868/zccao2026/gazeagent/outputs/results/T0_fe_by_category.csv",
+      "md": "/scratch/11868/zccao2026/gazeagent/outputs/results/T0_fe_by_category.md"
+    },
+    "T1_main": {
+      "csv": "/scratch/11868/zccao2026/gazeagent/outputs/results/T1_main.csv",
+      "md": "/scratch/11868/zccao2026/gazeagent/outputs/results/T1_main.md"
+    },
+    "T2_by_category": {
+      "csv": "/scratch/11868/zccao2026/gazeagent/outputs/results/T2_by_category.csv",
+      "md": "/scratch/11868/zccao2026/gazeagent/outputs/results/T2_by_category.md"
+    },
+    "T3_category_by_fe": {
+      "csv": "/scratch/11868/zccao2026/gazeagent/outputs/results/T3_category_by_fe.csv",
+      "md": "/scratch/11868/zccao2026/gazeagent/outputs/results/T3_category_by_fe.md"
+    },
+    "T4_budget": {
+      "csv": "/scratch/11868/zccao2026/gazeagent/outputs/results/T4_budget.csv",
+      "md": "/scratch/11868/zccao2026/gazeagent/outputs/results/T4_budget.md"
+    },
+    "T5_personalization": {
+      "csv": "/scratch/11868/zccao2026/gazeagent/outputs/results/T5_personalization.csv",
+      "md": "/scratch/11868/zccao2026/gazeagent/outputs/results/T5_personalization.md"
+    },
+    "T6_answerability": {
+      "csv": "/scratch/11868/zccao2026/gazeagent/outputs/results/T6_answerability.csv",
+      "md": "/scratch/11868/zccao2026/gazeagent/outputs/results/T6_answerability.md"
+    },
+    "T7_retrieval_memory": {
+      "csv": "/scratch/11868/zccao2026/gazeagent/outputs/results/T7_retrieval_memory.csv",
+      "md": "/scratch/11868/zccao2026/gazeagent/outputs/results/T7_retrieval_memory.md"
+    }
+  },
+  "figures": [
+    "/scratch/11868/zccao2026/gazeagent/outputs/results/figs/fig1_fe_by_category.png",
+    "/scratch/11868/zccao2026/gazeagent/outputs/results/figs/fig2_condition_x_fe_videorag_B1.png",
+    "/scratch/11868/zccao2026/gazeagent/outputs/results/figs/fig3_budget_slopes.png"
+  ],
+  "verdicts": {
+    "H1": "inconclusive",
+    "H2": "inconclusive",
+    "H3": "inconclusive",
+    "H4": "inconclusive",
+    "H5": "inconclusive",
+    "H6": "inconclusive"
+  },
+  "models": {
+    "main model (videorag)": "skipped",
+    "personalization model (videorag)": "skipped",
+    "personalization x NSS group (videorag)": "skipped"
+  },
+  "n_failure_cases": 5,
+  "errors": [],
+  "report": "/scratch/11868/zccao2026/gazeagent/outputs/results/REPORT.md"
+}
+{
+  "used_gpu_hours": 21.338,
+  "planned": 22.0,
+  "hard_limit": 23.5
+}

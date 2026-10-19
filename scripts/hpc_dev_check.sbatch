@@ -1,15 +1,23 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=smvqa-dev
-#SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=128G
+#SBATCH --partition=gh
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
 #SBATCH --time=03:00:00
+#SBATCH --mail-type=all
+#SBATCH --mail-user=zccao@utexas.edu
 # Step 1 on HPC: verify data, prepare caches, audit tokens and run every
 # condition on a few dev questions through both pipelines. Must finish with
 # "DEV CHECK PASSED" before submitting the benchmark job.
 # SLURM runs a copy of this file from its spool directory, so locate the
-# repository from the submission directory: submit from the repo root.
-source "${SMVQA_REPO:-${SLURM_SUBMIT_DIR:-$(pwd)}}/scripts/hpc_common.sh"
+# repository from the submission directory (the repo root or its scripts/).
+set -euo pipefail
+for SMVQA_REPO in "${SMVQA_REPO:-}" "${SLURM_SUBMIT_DIR:-$PWD}" "${SLURM_SUBMIT_DIR:-$PWD}/.."; do
+  [ -f "$SMVQA_REPO/scripts/hpc_common.sh" ] && break
+done
+[ -f "$SMVQA_REPO/scripts/hpc_common.sh" ] || { echo "Repository not found: submit from its root or export SMVQA_REPO" >&2; exit 1; }
+SMVQA_REPO="$(cd -- "$SMVQA_REPO" && pwd)"
+source "$SMVQA_REPO/scripts/hpc_common.sh"
 account_job h0-dev-check
 
 smvqa hpc-prepare --workers "${SLURM_CPUS_PER_TASK:-8}"
